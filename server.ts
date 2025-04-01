@@ -104,6 +104,7 @@ const updateProductReviews = require('./routes/updateProductReviews')
 const likeProductReviews = require('./routes/likeProductReviews')
 const security = require('./lib/insecurity')
 const app = express()
+const csrfProtection = csrf({ cookie: true });
 const server = require('http').Server(app)
 const appConfiguration = require('./routes/appConfiguration')
 const captcha = require('./routes/captcha')
