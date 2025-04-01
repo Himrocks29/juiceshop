@@ -9,7 +9,7 @@ import challengeUtils = require('../lib/challengeUtils')
 import { type NextFunction, type Request, type Response } from 'express'
 import path from 'path'
 import * as utils from '../lib/utils'
-import { challenges } from '../data/datacache'
+import { challenges, retrieveBlueprintChallengeFile } from '../data/datacache'
 
 const libxml = require('libxmljs')
 const yaml = require('js-yaml')
@@ -39,13 +39,23 @@ function handleZipFileUpload ({ file }: Request, res: Response, next: NextFuncti
               .pipe(unzipper.Parse())
               .on('entry', function (entry: any) {
                 const fileName = entry.path
-                const absolutePath = path.resolve('uploads/complaints/' + fileName)
-                challengeUtils.solveIf(challenges.fileWriteChallenge, () => { return absolutePath === path.resolve('ftp/legal.md') })
-                if (absolutePath.includes(path.resolve('.'))) {
-                  entry.pipe(fs.createWriteStream('uploads/complaints/' + fileName).on('error', function (err) { next(err) }))
-                } else {
+                //const absolutePath = path.resolve('uploads/complaints/' + fileName)
+                const absolutePath = path.join('uploads/complaints/' + fileName)
+                const finalpath = path.normalize(absolutePath) //Normalizing the path to ensure removal of any traversal characters
+                
+                // Check if the final path starts with the base path
+                if(!finalpath.startsWith(path.normalize('uploads/complaints/'))) {
                   entry.autodrain()
+                  return
                 }
+
+                //challengeUtils.solveIf(challenges.fileWriteChallenge, () => { return absolutePath === path.resolve('ftp/legal.md') })
+                //if (absolutePath.includes(path.resolve('.'))) {
+                  
+                //} else {
+                //  entry.autodrain()
+                //}
+                entry.pipe(fs.createWriteStream('uploads/complaints/' + fileName).on('error', function (err) { next(err) }))
               }).on('error', function (err: unknown) { next(err) })
           })
         })
