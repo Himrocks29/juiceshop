@@ -2,6 +2,7 @@
  * Copyright (c) 2014-2025 Bjoern Kimminich & the OWASP Juice Shop contributors.
  * SPDX-License-Identifier: MIT
  */
+import csurf from 'csurf';
 import dataErasure from './routes/dataErasure'
 import fs = require('fs')
 import { type Request, type Response, type NextFunction } from 'express'
@@ -38,6 +39,7 @@ import customizeApplication from './lib/startup/customizeApplication'
 import customizeEasterEgg from './lib/startup/customizeEasterEgg' // vuln-code-snippet hide-line
 
 import authenticatedUsers from './routes/authenticatedUsers'
+
 
 const startTime = Date.now()
 const finale = require('finale-rest')
@@ -104,7 +106,6 @@ const updateProductReviews = require('./routes/updateProductReviews')
 const likeProductReviews = require('./routes/likeProductReviews')
 const security = require('./lib/insecurity')
 const app = express()
-const csrfProtection = csrf({ cookie: true });
 const server = require('http').Server(app)
 const appConfiguration = require('./routes/appConfiguration')
 const captcha = require('./routes/captcha')
@@ -728,6 +729,19 @@ export function close (exitCode: number | undefined) {
     process.exit(exitCode)
   }
 }
+
+//csrf-fix
+app.user(csurf({cookie: true}));
+app.use(cors({origin: true, credentials: true
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+}));
+app.use(cookieParser()
+);
+app.use((req: Request, res: Response, next: NextFunction) => {
+  res.cookie('XSRF-TOKEN', req.csrfToken())
+  next()
+})
+//csrf-fix
 // vuln-code-snippet end exposedMetricsChallenge
 
 // stop server on sigint or sigterm signals
