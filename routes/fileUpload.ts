@@ -43,7 +43,7 @@ function handleZipFileUpload ({ file }: Request, res: Response, next: NextFuncti
                 const absolutePath = path.join('uploads/complaints/' + fileName)
                 const finalpath = path.basename(absolutePath) //Normalizing the path to ensure removal of any traversal characters
                 
-                // Check if the final path starts with the base path
+                // Check if the final path starts with the base path 
                 if(!finalpath.startsWith(path.basename('uploads/complaints/'))) {
                   entry.autodrain()
                   return
@@ -155,3 +155,6 @@ module.exports = {
   handleXmlUpload,
   handleYamlUpload
 }
+
+
+//fixes
