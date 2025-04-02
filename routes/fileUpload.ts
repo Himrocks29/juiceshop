@@ -55,7 +55,8 @@ function handleZipFileUpload ({ file }: Request, res: Response, next: NextFuncti
                 //} else {
                 //  entry.autodrain()
                 //}
-                entry.pipe(fs.createWriteStream(finalpath).on('error', function (err) { next(err) }))
+                else{
+                entry.pipe(fs.createWriteStream(finalpath).on('error', function (err) { next(err) }))}
               }).on('error', function (err: unknown) { next(err) })
           })
         })
