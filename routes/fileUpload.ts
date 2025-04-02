@@ -41,10 +41,10 @@ function handleZipFileUpload ({ file }: Request, res: Response, next: NextFuncti
                 const fileName = entry.path
                 //const absolutePath = path.resolve('uploads/complaints/' + fileName)
                 const absolutePath = path.join('uploads/complaints/' + fileName)
-                const finalpath = path.normalize(absolutePath) //Normalizing the path to ensure removal of any traversal characters
+                const finalpath = path.basename(absolutePath) //Normalizing the path to ensure removal of any traversal characters
                 
                 // Check if the final path starts with the base path
-                if(!finalpath.startsWith(path.normalize('uploads/complaints/'))) {
+                if(!finalpath.startsWith(path.basename('uploads/complaints/'))) {
                   entry.autodrain()
                   return
                 }
