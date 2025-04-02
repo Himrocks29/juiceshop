@@ -39,12 +39,12 @@ function handleZipFileUpload ({ file }: Request, res: Response, next: NextFuncti
               .pipe(unzipper.Parse())
               .on('entry', function (entry: any) {
                 const fileName = entry.path
-                //const absolutePath = path.resolve('uploads/complaints/' + fileName)
-                const absolutePath = path.join('uploads/complaints/' + fileName)
-                const finalpath = path.basename(absolutePath) //Normalizing the path to ensure removal of any traversal characters
+                const basedir = path.resolve('uploads/complaints/')
+                const absolutePath = path.join(basedir, fileName)
+                const finalpath = path.normalize(absolutePath) //Normalizing the path to ensure removal of any traversal characters
                 
                 // Check if the final path starts with the base path
-                if(!finalpath.startsWith(path.basename('uploads/complaints/'))) {
+                if(!finalpath.startsWith(basedir + path.sep)){
                   entry.autodrain()
                   return
                 }
@@ -55,8 +55,8 @@ function handleZipFileUpload ({ file }: Request, res: Response, next: NextFuncti
                 //} else {
                 //  entry.autodrain()
                 //}
-                else{
-                entry.pipe(fs.createWriteStream(finalpath).on('error', function (err) { next(err) }))}
+                
+                entry.pipe(fs.createWriteStream(finalpath).on('error', function (err) { next(err) }))
               }).on('error', function (err: unknown) { next(err) })
           })
         })
