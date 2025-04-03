@@ -13,12 +13,6 @@ import * as utils from '../lib/utils'
 const security = require('../lib/insecurity')
 const request = require('request')
 
-/*
-1. Function: imagevalidator()
-2. validate URL
-3. validate Protocol
-4. validate extension
-*/
 const allowedHosts = ['juiceshop.com', 'example.com']
 function isImageValidator(urlString:string): boolean{
   try{
@@ -71,14 +65,7 @@ module.exports = function profileImageUrlUpload () {
 
         try {
           
-          const response = await axios.get(url, {
-            responseType: 'stream',
-            timeout: 5000, // 5 seconds timeout
-            maxContentLength: 1024 * 1024 * 5, 
-            headers: {
-              'User-Agent': 'JuiceShop ImageUploader',
-            },
-          });
+          const response = await axios.get(url);
           if (response.status === 200) {
             const ext = ['jpg', 'jpeg', 'png', 'svg', 'gif'].includes(
               url.split('.').slice(-1)[0].toLowerCase()
