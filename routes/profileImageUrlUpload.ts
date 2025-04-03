@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
+import axios from 'axios'
 import fs = require('fs')
 import { type Request, type Response, type NextFunction } from 'express'
 import logger from '../lib/logger'
@@ -12,11 +13,46 @@ import * as utils from '../lib/utils'
 const security = require('../lib/insecurity')
 const request = require('request')
 
+/*
+1. Function: imagevalidator()
+2. validate URL
+3. validate Protocol
+4. validate extension
+*/
+const allowedHosts = ['juiceshop.com', 'example.com']
+function isImageValidator(urlString:string): boolean{
+  try{
+    const url = new URL(urlString)
+
+    //allwed protocols
+    if(!['http:', 'https:'].includes(url.protocol)){
+      return false
+    }
+
+    //restricted whitelisted Hosts
+    if(!allowedHosts.includes(url.hostname)) return false
+
+    //file extension validation
+    const validExt = ['.jpg', '.jpeg', '.png', '.svg', '.gif'] 
+    const ext = url.pathname.slice(url.pathname.lastIndexOf('.'))
+    if(!validExt.includes(ext)) return false
+
+    return true
+  }
+  catch{
+    return false
+  }
+}
+
 module.exports = function profileImageUrlUpload () {
   return (req: Request, res: Response, next: NextFunction) => {
     if (req.body.imageUrl !== undefined) {
       const url = req.body.imageUrl
-      if (url.match(/(.)*solve\/challenges\/server-side(.)*/) !== null) req.app.locals.abused_ssrf_bug = true
+      //validate Image
+      if(!isImageValidator(url)){
+        return res.status(400).json({error: 'Invalid Image URL'})
+      }
+      //if (url.match(/(.)*solve\/challenges\/server-side(.)*/) !== null) req.app.locals.abused_ssrf_bug = true
       const loggedInUser = security.authenticatedUsers.get(req.cookies.token)
       if (loggedInUser) {
         const imageRequest = request
@@ -32,10 +68,12 @@ module.exports = function profileImageUrlUpload () {
               UserModel.findByPk(loggedInUser.data.id).then(async (user: UserModel | null) => { return await user?.update({ profileImage: `/assets/public/images/uploads/${loggedInUser.data.id}.${ext}` }) }).catch((error: Error) => { next(error) })
             } else UserModel.findByPk(loggedInUser.data.id).then(async (user: UserModel | null) => { return await user?.update({ profileImage: url }) }).catch((error: Error) => { next(error) })
           })
-      } else {
+        }
+       else {
         next(new Error('Blocked illegal activity by ' + req.socket.remoteAddress))
       }
     }
+  
     res.location(process.env.BASE_PATH + '/profile')
     res.redirect(process.env.BASE_PATH + '/profile')
   }
