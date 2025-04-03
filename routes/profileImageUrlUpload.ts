@@ -55,7 +55,7 @@ module.exports = function profileImageUrlUpload () {
       //if (url.match(/(.)*solve\/challenges\/server-side(.)*/) !== null) req.app.locals.abused_ssrf_bug = true
       const loggedInUser = security.authenticatedUsers.get(req.cookies.token)
       if (loggedInUser) {
-        const imageRequest = request
+        /*const imageRequest = request
           .get(url)
           .on('error', function (err: unknown) {
             UserModel.findByPk(loggedInUser.data.id).then(async (user: UserModel | null) => { return await user?.update({ profileImage: url }) }).catch((error: Error) => { next(error) })
@@ -67,7 +67,43 @@ module.exports = function profileImageUrlUpload () {
               imageRequest.pipe(fs.createWriteStream(`frontend/dist/frontend/assets/public/images/uploads/${loggedInUser.data.id}.${ext}`))
               UserModel.findByPk(loggedInUser.data.id).then(async (user: UserModel | null) => { return await user?.update({ profileImage: `/assets/public/images/uploads/${loggedInUser.data.id}.${ext}` }) }).catch((error: Error) => { next(error) })
             } else UserModel.findByPk(loggedInUser.data.id).then(async (user: UserModel | null) => { return await user?.update({ profileImage: url }) }).catch((error: Error) => { next(error) })
-          })
+          })*/
+
+        try {
+          
+          const response = await axios.get(url, {
+            responseType: 'stream',
+            timeout: 5000, // 5 seconds timeout
+            maxContentLength: 1024 * 1024 * 5, 
+            headers: {
+              'User-Agent': 'JuiceShop ImageUploader',
+            },
+          });
+          if (response.status === 200) {
+            const ext = ['jpg', 'jpeg', 'png', 'svg', 'gif'].includes(
+              url.split('.').slice(-1)[0].toLowerCase()
+            )
+              ? url.split('.').slice(-1)[0].toLowerCase()
+              : 'jpg';
+
+            const filePath = `frontend/dist/frontend/assets/public/images/uploads/${loggedInUser.data.id}.${ext}`;
+            const writeStream = fs.createWriteStream(filePath);
+
+            response.data.pipe(writeStream);
+
+            writeStream.on('finish', async () => {
+              await UserModel.findByPk(loggedInUser.data.id).then(async (user: UserModel | null) => {
+                return await user?.update({ profileImage: `/assets/public/images/uploads/${loggedInUser.data.id}.${ext}` });
+              });
+              res.location(process.env.BASE_PATH + '/profile');
+              res.redirect(process.env.BASE_PATH + '/profile');
+            });
+
+            writeStream.on('error', (err) => {
+              logger.error(`Error saving image: ${utils.getErrorMessage(err)}`);
+              next(err);
+            });
+
         }
        else {
         next(new Error('Blocked illegal activity by ' + req.socket.remoteAddress))
