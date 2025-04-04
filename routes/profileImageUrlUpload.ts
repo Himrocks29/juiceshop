@@ -64,7 +64,6 @@ module.exports = function profileImageUrlUpload () {
           })*/
 
         try {
-          
           const response = await axios.get(url);
           if (response.status === 200) {
             const ext = ['jpg', 'jpeg', 'png', 'svg', 'gif'].includes(
