@@ -4,7 +4,7 @@
  */
 import { type Request, type Response, type NextFunction } from 'express'
 import { UserModel } from '../models/user'
-import { decode } from 'jsonwebtoken'
+//import { decode } from 'jsonwebtoken'
 import {verify, JWTPayload} from 'jsonwebtoken' //import jwt verify 
 import * as security from '../lib/insecurity'
 
@@ -19,7 +19,7 @@ async function retrieveUserList (req: Request, res: Response, next: NextFunction
         let lastLoginTime: number | null = null
         if (userToken) {
           try{
-            const parsedToken = verify(userToken, JWT_SECRET) as JwtPayload
+            const parsedToken = verify(userToken, secret) as JwtPayload
             if(parsedToken && parsedToken.iat){
               lastLoginTime = Math.floor(new Date(parsedToken.iat * 1000).getTime())
             }
