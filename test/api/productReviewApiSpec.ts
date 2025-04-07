@@ -6,7 +6,7 @@
 import frisby = require('frisby')
 import config from 'config'
 import { type Product } from '../../data/types'
-import { type IncomingMessage } from 'https'
+import { type IncomingMessage } from 'http'
 const Joi = frisby.Joi
 const security = require('../../lib/insecurity')
 const http = require('http')
@@ -65,7 +65,7 @@ describe('/rest/products/reviews', () => {
   let reviewId: string
 
   beforeAll((done) => {
-    https.get(`${REST_URL}/products/1/reviews`, (res: IncomingMessage) => {
+    http.get(`${REST_URL}/products/1/reviews`, (res: IncomingMessage) => {
       let body = ''
 
       res.on('data', (chunk: string) => {
