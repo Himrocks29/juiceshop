@@ -6,10 +6,10 @@
 import frisby = require('frisby')
 import config from 'config'
 import { type Product } from '../../data/types'
-import { type IncomingMessage } from 'http'
+import { type IncomingMessage } from 'https'
 const Joi = frisby.Joi
 const security = require('../../lib/insecurity')
-const http = require('http')
+const https = require('https')
 
 const REST_URL = 'http://localhost:3000/rest'
 
@@ -65,7 +65,7 @@ describe('/rest/products/reviews', () => {
   let reviewId: string
 
   beforeAll((done) => {
-    http.get(`${REST_URL}/products/1/reviews`, (res: IncomingMessage) => {
+    https.get(`${REST_URL}/products/1/reviews`, (res: IncomingMessage) => {
       let body = ''
 
       res.on('data', (chunk: string) => {
