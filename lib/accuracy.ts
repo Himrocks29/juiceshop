@@ -59,6 +59,9 @@ function calculateAccuracy (challengeKey: string, phase: Phase) {
 }
 
 function storeVerdict (challengeKey: string, phase: Phase, verdict: boolean) {
+  if challengeKey === '__proto__' || challengeKey === 'constructor' || challengekey === 'prototype' {
+    throw new Error('Invalid challenge key')
+  }
   if (!solves[challengeKey]) {
     solves[challengeKey] = { 'find it': false, 'fix it': false, attempts: { 'find it': 0, 'fix it': 0 } }
   }
