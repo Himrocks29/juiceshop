@@ -67,14 +67,19 @@ export const serveCodeFixes = () => (req: Request<FixesRequestParams, Record<str
 }
 
 export const checkCorrectFix = () => async (req: Request<Record<string, unknown>, Record<string, unknown>, VerdictRequestBody>, res: Response, next: NextFunction) => {
+
   const key = req.body.key
   const selectedFix = req.body.selectedFix
   const fixData = readFixes(key)
-  if (fixData.fixes.length === 0) {
+  /*if (fixData.fixes.length === 0) {
     res.status(404).json({
       error: 'No fixes found for the snippet!'
     })
-  } else {
+  } */
+  if (!/^[a-zA-Z0-9_-]+$/.test(key)) {
+    throw new Error('Invalid key: Only alphanumeric characters, underscores, and dashes are allowed.');
+  }
+  else {
     let explanation
     if (fs.existsSync('./data/static/codefixes/' + key + '.info.yml')) {
       const codingChallengeInfos = yaml.load(fs.readFileSync('./data/static/codefixes/' + key + '.info.yml', 'utf8'))
