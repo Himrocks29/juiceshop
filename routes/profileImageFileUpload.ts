@@ -24,10 +24,10 @@ module.exports = function fileUpload () {
     } else {
       if (uploadedFileType !== null && utils.startsWith(uploadedFileType.mime, 'image')) {
         const loggedInUser = security.authenticatedUsers.get(req.cookies.token)
-        if (!/^[a-zA-Z0-9_-]+$/.test(key)) {
+        if (!/^[a-zA-Z0-9_-]+$/.test(loggedInUser)) {
           throw new Error('Invalid key: Only alphanumeric characters, underscores, and dashes are allowed.');
         }
-        else if (loggedInUser) {
+        else (loggedInUser) {
           fs.open(`frontend/dist/frontend/assets/public/images/uploads/${loggedInUser.data.id}.${uploadedFileType.ext}`, 'w', function (err, fd) {
             if (err != null) logger.warn('Error opening file: ' + err.message)
             // @ts-expect-error FIXME buffer has unexpected type
@@ -45,9 +45,9 @@ module.exports = function fileUpload () {
           })
           res.location(process.env.BASE_PATH + '/profile')
           res.redirect(process.env.BASE_PATH + '/profile')
-        } else {
+        } /*else {
           next(new Error('Blocked illegal activity by ' + req.socket.remoteAddress))
-        }
+        }*/
       } else {
         res.status(415)
         next(new Error(`Profile image upload does not accept this file type${uploadedFileType ? (': ' + uploadedFileType.mime) : '.'}`))
