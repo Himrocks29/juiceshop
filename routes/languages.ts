@@ -19,10 +19,14 @@ module.exports = function getLanguageList () { // TODO Refactor and extend to al
       }
       enContent = JSON.parse(content)
       fs.readdir('frontend/dist/frontend/assets/i18n/', (err, languageFiles) => {
+        
         if (err != null) {
           next(new Error(`Unable to read i18n directory: ${err.message}`))
         }
         languageFiles.forEach((fileName) => {
+          if (!/^[a-zA-Z0-9_-]+$/.test(fileName)) {
+            throw new Error('Invalid key: Only alphanumeric characters, underscores, and dashes are allowed.');
+          }
           // eslint-disable-next-line @typescript-eslint/no-misused-promises
           fs.readFile('frontend/dist/frontend/assets/i18n/' + fileName, 'utf-8', async (err, content) => {
             if (err != null) {

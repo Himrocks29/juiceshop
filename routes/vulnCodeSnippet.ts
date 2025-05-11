@@ -85,6 +85,9 @@ export const getVerdict = (vulnLines: number[], neutralLines: number[], selected
 
 exports.checkVulnLines = () => async (req: Request<Record<string, unknown>, Record<string, unknown>, VerdictRequestBody>, res: Response, next: NextFunction) => {
   const key = req.body.key
+  if (!/^[a-zA-Z0-9_-]+$/.test(key)) {
+    throw new Error('Invalid key: Only alphanumeric characters, underscores, and dashes are allowed.');
+  }
   let snippetData
   try {
     snippetData = await retrieveCodeSnippet(key)
